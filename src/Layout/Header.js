@@ -7,10 +7,8 @@ import Typography from '@material-ui/core/Typography';
 import useStyles from "./style";
 
 import {
-  useHistory,
   Route,
-  Switch,
-  Link as RouterLink,
+  Switch
 } from "react-router-dom";
 
 //メニュー
@@ -38,6 +36,13 @@ function Header(props) {
                 <Typography>{route.name}</Typography>
               </Route>
             ) : null;
+          })}
+          {routes.map((route, index) => {
+            return route.name && route.child ? route.child.map((subroute, subindex) => {
+              return subroute.component ? <Route key={`sub-${subindex}`} path={subroute.path} exact={subroute.exact} >
+                <Typography>{subroute.name}</Typography>
+              </Route> : null;
+            }) : null;
           })}
         </Switch>
     </Toolbar>

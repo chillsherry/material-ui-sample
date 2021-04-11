@@ -8,6 +8,9 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import { Container } from '@material-ui/core';
+import Collapse from '@material-ui/core/Collapse';
+import ExpandLess from '@material-ui/icons/ExpandLess';
+import ExpandMore from '@material-ui/icons/ExpandMore';
 
 import { useTheme } from '@material-ui/core/styles';
 import { Route, NavLink as RouterLink, Switch } from "react-router-dom";
@@ -20,6 +23,37 @@ import useStyles from "./style";
 //メニュー
 import routes from "../config/routes";
 
+const ListItemDropDown = (props) => {
+  const { item } = props;
+  const [open, setOpen] = React.useState(false);
+  const handleClick = () => setOpen(!open);
+  const classes = useStyles();
+
+  return (
+    <>
+      <ListItem button onClick={handleClick} component={props => <RouterLink {...props} to={item.path} />} >
+        <ListItemText primary={item.name} />
+        {item.child ? open ? <ExpandLess /> : <ExpandMore /> : null}
+      </ListItem>
+      {
+        item.child ? (
+          <>
+            <Collapse component="li" in={open} timeout="auto" unmountOnExit>
+              <List disablePadding>
+                {item.child.map((subitem) => (
+                  <ListItem key={`${item.name}-${subitem.name}`} component={props => <RouterLink {...props} to={subitem.path} />} >
+                    <ListItemText primary={subitem.name} className={classes.nested}/>
+                  </ListItem>
+                ))}
+              </List>
+            </Collapse>
+          </>
+        ) : null}
+    </>
+
+  )
+}
+
 function Layout(props) {
   const { window } = props;
   const classes = useStyles();
@@ -28,20 +62,21 @@ function Layout(props) {
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
+
   const loading = () => (
     <div className="animated fadeIn pt-1 text-center">Loading...</div>
   );
 
+  {/** ナビ内容 */}
   const drawer = (
     <div>
       <div className={classes.toolbar} />
       <Divider />
       <List>
         {routes.map((item, index) => (
-          <ListItem key={index} button component={props => <RouterLink {...props} to={item.path} />} >
-            <ListItemText primary={item.name} />
-          </ListItem>
-        ))}
+          <ListItemDropDown key={index} item={item}/>
+        )
+        )}
       </List>
     </div>
   );
@@ -52,7 +87,7 @@ function Layout(props) {
     <div className={classes.root}>
       <CssBaseline />
       <Header toggle={handleDrawerToggle} />
-      <nav className={classes.drawer} aria-label="mailbox folders">
+      <nav className={classes.drawer}>
         {/* ナビメニュー */}
         <Hidden smUp implementation="css">
           <Drawer
@@ -95,6 +130,12 @@ function Layout(props) {
                     <Route key={index} path={route.path} exact={route.exact} render={(props) => <route.component />} />
                   ) : null;
                 })}
+                {routes.map((route, index) => {
+                  return route.child ? route.child.map((subroute, subindex) => {
+                    return subroute.component ? 
+                      <Route key={`sub-${subindex}`} path={subroute.path} exact={subroute.exact} render={(props) => <subroute.component />} />
+                      : null;
+                }) : null })}
               </Switch>
             </Suspense>
           </div>
