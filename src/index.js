@@ -3,11 +3,5 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 
-const app = (
-  <>
-    <CssBaseline />
-    <App />
-  </>
-)
 
-ReactDOM.render(app, document.getElementById('root'));
+ReactDOM.render(<App />, document.getElementById('root'));

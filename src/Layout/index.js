@@ -13,7 +13,7 @@ import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 
 import { useTheme } from '@material-ui/core/styles';
-import { Route, NavLink as RouterLink, Switch } from "react-router-dom";
+import { Route, NavLink as RouterLink, Switch, NavLink } from "react-router-dom";
 
 //パーツ
 import Header from "./Header";
@@ -31,7 +31,7 @@ const ListItemDropDown = (props) => {
 
   return (
     <>
-      <ListItem button onClick={handleClick} component={props => <RouterLink {...props} to={item.path} />} >
+      <ListItem button onClick={handleClick} to={item.path} component={React.forwardRef((props, ref) => <RouterLink {...props} />)} >
         <ListItemText primary={item.name} />
         {item.child ? open ? <ExpandLess /> : <ExpandMore /> : null}
       </ListItem>
@@ -41,7 +41,7 @@ const ListItemDropDown = (props) => {
             <Collapse component="li" in={open} timeout="auto" unmountOnExit>
               <List disablePadding>
                 {item.child.map((subitem) => (
-                  <ListItem key={`${item.name}-${subitem.name}`} component={props => <RouterLink {...props} to={subitem.path} />} >
+                  <ListItem key={`${item.name}-${subitem.name}`} to={subitem.path} component={React.forwardRef((props, ref) => <RouterLink {...props} />)} >
                     <ListItemText primary={subitem.name} className={classes.nested}/>
                   </ListItem>
                 ))}
@@ -84,6 +84,7 @@ function Layout(props) {
   const container = window !== undefined ? () => window().document.body : undefined;
 
   return (
+    <>
     <div className={classes.root}>
       <CssBaseline />
       <Header toggle={handleDrawerToggle} />
@@ -122,27 +123,26 @@ function Layout(props) {
       <main className={classes.content}>
         <div className={classes.toolbar} />
         <Container maxWidth="lg" >
-          <div>
             <Suspense fallback={loading}>
               <Switch>
                 {routes.map((route, index) => {
                   return route.component ? (
-                    <Route key={index} path={route.path} exact={route.exact} render={(props) => <route.component />} />
+                    <Route key={index} path={route.path} exact={route.exact} render={()=> <route.component />} />
                   ) : null;
                 })}
                 {routes.map((route, index) => {
-                  return route.child ? route.child.map((subroute, subindex) => {
-                    return subroute.component ? 
-                      <Route key={`sub-${subindex}`} path={subroute.path} exact={subroute.exact} render={(props) => <subroute.component />} />
-                      : null;
-                }) : null })}
-              </Switch>
+                  return route.child && route.child.map((subroute, subindex) => subroute.component ?
+                    <Route key={`sub-${subindex}`} path={subroute.path} exact={subroute.exact} render={() => <subroute.component />} />
+                    : null
+                  )
+                })}
+                </Switch>
             </Suspense>
-          </div>
         <Footer />
         </Container>
       </main>
-    </div>
+      </div>
+      </>
   );
 }
 
