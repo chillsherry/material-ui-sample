@@ -13,7 +13,7 @@ import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 
 import { useTheme } from '@material-ui/core/styles';
-import { Route, NavLink as RouterLink, Switch, NavLink } from "react-router-dom";
+import { Route, NavLink as RouterLink, Switch } from "react-router-dom";
 
 //パーツ
 import Header from "./Header";
@@ -23,6 +23,7 @@ import useStyles from "./style";
 //メニュー
 import routes from "../config/routes";
 
+//ナビメニュー
 const ListItemDropDown = (props) => {
   const { item } = props;
   const [open, setOpen] = React.useState(false);
@@ -31,20 +32,23 @@ const ListItemDropDown = (props) => {
 
   return (
     <>
-      <ListItem button onClick={handleClick} to={item.path} component={React.forwardRef((props, ref) => <RouterLink {...props} />)} >
-        <ListItemText primary={item.name} />
-        {item.child ? open ? <ExpandLess /> : <ExpandMore /> : null}
-      </ListItem>
+      {item.display ? (
+        <ListItem button onClick={handleClick} to={item.path} component={React.forwardRef((props, ref) => <RouterLink {...props} />)} >
+          <ListItemText primary={item.name} />
+          {item.child ? open ? <ExpandLess /> : <ExpandMore /> : null}
+        </ListItem>
+      ) : null}
       {
         item.child ? (
           <>
             <Collapse component="li" in={open} timeout="auto" unmountOnExit>
               <List disablePadding>
-                {item.child.map((subitem) => (
-                  <ListItem key={`${item.name}-${subitem.name}`} to={subitem.path} component={React.forwardRef((props, ref) => <RouterLink {...props} />)} >
-                    <ListItemText primary={subitem.name} className={classes.nested}/>
-                  </ListItem>
-                ))}
+                {item.child.map((subitem) => {
+                  return subitem.display ?
+                    <ListItem button key={`${item.name}-${subitem.name}`} to={subitem.path} component={React.forwardRef((props, ref) => <RouterLink {...props} />)} >
+                    <ListItemText primary={subitem.name} className={classes.nested} />
+                  </ListItem> : null;
+                })}
               </List>
             </Collapse>
           </>
@@ -63,11 +67,6 @@ function Layout(props) {
     setMobileOpen(!mobileOpen);
   };
 
-  const loading = () => (
-    <div className="animated fadeIn pt-1 text-center">Loading...</div>
-  );
-
-  {/** ナビ内容 */}
   const drawer = (
     <div>
       <div className={classes.toolbar} />
@@ -123,12 +122,17 @@ function Layout(props) {
       <main className={classes.content}>
         <div className={classes.toolbar} />
         <Container maxWidth="lg" >
-            <Suspense fallback={loading}>
+            <Suspense fallback={<div>loading...</div>}>
               <Switch>
                 {routes.map((route, index) => {
                   return route.component ? (
-                    <Route key={index} path={route.path} exact={route.exact} render={()=> <route.component />} />
-                  ) : null;
+                    <Route
+                      key={index}
+                      path={route.path}
+                      exact={route.exact}
+                      render={() => <route.component/>}
+                    />
+                  ) : null
                 })}
                 {routes.map((route, index) => {
                   return route.child && route.child.map((subroute, subindex) => subroute.component ?

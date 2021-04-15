@@ -34,6 +34,20 @@ const useStyles = makeStyles((theme) => (
   nested: {
     paddingLeft: theme.spacing(3),
   },
+  loginbase: {
+    marginTop: 30,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center"
+  },
+  form: {
+    width: "100%", // Fix IE 11 issue.
+    marginTop: theme.spacing(1),
+  },
+  formcontrol: {
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1)
+  }
 }
 ));
 

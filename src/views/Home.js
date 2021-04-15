@@ -1,13 +1,21 @@
-import React from "react";
+import React, {useContext} from "react";
+import { UserContext } from "../store/userStore";
 
 const Home = () => {
+  const {state} = useContext(UserContext);
   return (
+    <>
     <div>
       <h3>ホーム</h3>
       <p>
-        これまでの実績を活かし、開発環境の構築から具体的なコードの役割などの基礎、実践で使える応用やビジネス面でのノウハウなどを企業向けの技術研修やフリーランスでプログラマーを目指す方をサポートします。
+        ユーザ情報
       </p>
-    </div>
+      <ul>
+        <li>uid: {state.uid}</li>
+        <li>email: {state.email}</li>
+      </ul>
+      </div>
+    </>
   )
 }
 
